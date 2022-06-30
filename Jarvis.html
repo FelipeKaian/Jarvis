@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Speech Recognition App</title>
+
+    <style>
+    </style>
+</head>
+<body>
+    <button id="btn">clique aqui e diga "Oi!"</button>
+    <script>  
+            if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+
+                var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition, ouvir = new SpeechRecognition(),botao = document.getElementById("btn"),resposta = new SpeechSynthesisUtterance, fala = speechSynthesis;
+
+                resposta.volume = 1;
+                resposta.pitch = 1;
+                ouvir.continuos = true;
+
+                var aprendendo = false,ultimaresposta,ultimaescutada,ultimaestrutura; 
+
+                botao.addEventListener('click',function() {
+                        ouvir.start();
+                    });
+
+                ouvir.nomatch = function(e) {
+                    responder("Deu algum erro aqui...");
+                }   
+                ouvir.soundend = function(e) {
+                    responder("Nao escuto mais nada");
+                }
+                        
+                ouvir.onresult = function(e) {
+                    var entendido = e.results[0][0].transcript;
+                    pensar(entendido);
+                }
+                     
+                var perguntas=["oi"],respostas=["Olá, vamos lá... me pergunte algo que eu não sei para eu aprender a responder"],assistir =["assistir"],pesquisar = ["pesquisar"],caucular =["calcula","calcular"],ok=["ok"],repetir=["repete"],esquecer=["esqueça"],esquecido=["poof , esqueci"];
+                    
+                function pensar(escutado) {
+                    escutado = escutado.toLowerCase();
+                    var palavras = escutado.split(" ");
+
+                    if(!aprendendo){
+                    var respondido = false;
+                        var index = 0
+                        for(var i = 0; i < palavras.length; i++){
+                            if (palavras[i].toLowerCase() === "sistema." && i+1 < palavras.length) {
+                            var comando = palavras[i+1].toLowerCase();
+                            switch(comando){
+
+                                case "assistir":case "pesquisar":case "caucular":case "repetir":
+                                    var vetor = eval(comando);
+                                    vetor.push(escutado.substring(0,index-1));
+                                    responder("Sistema atualizado com sucesso!");
+                                    respondido = true;   
+                                    break;
+                                default:
+                                    responder("Comando de sistema desconhecido!"); 
+                                    respondido = true;   
+                                    }
+                                }else{
+                                    index += palavras[i].length+1;
+                                }
+
+                            }
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+                        if(!respondido){
+                        for(var i = 0; i < repetir.length; i++){
+                            if (repetir[i] === escutado){
+                            respondido = true;
+                            responder(ultimaresposta);
+                                }
+                            }
+                        }
+
+                        if(!respondido){
+                        for(var i = 0; i < esquecer.length; i++){
+                            if (esquecer[i] === escutado){
+                            respondido = true;
+                            var pos = perguntas.indexOf(ultimaescutada);
+                            switch(ultimaestrutura){
+                                case "perguntas":case "respostas":
+                                    perguntas.splice(pos,1);
+                                    respostas.splice(pos,1);
+                                    responder(esquecido[0]);
+                                    break;
+                                case "caucular": case "assistir": case "pesquisar": case "esquecer":case "repetir": case "ok": case "caucular": case "esquecido":
+                                    var estrutura = eval(ultimaestrutura);
+                                    estrutura.splice(pos,1);
+                                    responder(esquecido[0]);
+                                    break;
+                                default:
+                                    responder("Não há nada para ser esquecido"); 
+
+                                    }
+                                }
+                            }
+                        }
+
+                        if(!respondido){
+                        for(var i = 0; i < caucular.length; i++){
+                            if (caucular[i] === palavras[0]){
+                            respondido = true;
+                            var conteudo = escutado.substring(caucular[i].length+1,escutado.length);
+                            var conta = conteudo.replace("x","*");
+                            var conta = conteudo.replace("mais","+");
+                            var conta = conteudo.replace("zero","0");
+                            var conta = conteudo.replace("um","1");
+                            var conta = conteudo.replace("menos","-");
+                            console.log(conta);
+                            responder(eval(conta));
+                                }
+                            }
+                        }
+
+                        if(!respondido){
+                        for(var i = 0; i < pesquisar.length; i++){
+                            if (pesquisar[i] === palavras[0]){
+                            respondido = true;
+                            var conteudo = escutado.substring(pesquisar[i].length+1,escutado.length);
+                            var pesquisa = conteudo.replace(" ","+");
+                            window.open("https://www.google.com/search?rlz=1C1LEND_enBR739BR739&sxsrf=ALeKk00OCzGasiojxifsfr09uZgFReENVA%3A1590281751217&ei=F8bJXrjqDOq45OUPze-RuA4&q="+pesquisa+"&oq="+pesquisa+"&gs_lcp=CgZwc3ktYWIQAzoHCCMQ6gIQJzoECCMQJzoCCAA6BQgAEIMBOgQIABAKUKlOWO9qYLhxaAFwAHgAgAGMAogB3Q-SAQMyLTmYAQCgAQGqAQdnd3Mtd2l6sAEK&sclient=psy-ab&ved=0ahUKEwj40f6WpcvpAhVqHLkGHc13BOcQ4dUDCAw&uact=5");
+                                }
+                            }
+                        }
+
+                        if(!respondido){
+                        for(var i = 0; i < assistir.length; i++){
+                            if (assistir[i] === palavras[0]){
+                            respondido = true;
+                            var conteudo = escutado.substring(assistir[i].length+1,escutado.length);
+                            var pesquisa = conteudo.replace(" ","%20");
+                            window.open("https://m.youtube.com/results?search_query="+pesquisa);
+                                }
+                            }
+                        }
+
+                        if(!respondido){
+                        for(var i = 0; i < perguntas.length; i++){
+
+                            if (perguntas[i] === escutado.toLowerCase()){
+                            responder(respostas[i]);
+                            respondido = true;
+                                }
+                            }
+                        }
+
+                        if(!respondido){
+                            ultimaescutada = escutado;
+                            responder("Nunca ouvi falar disso, qual seria a resposta?");
+                            aprendendo = true;
+                        }
+                        
+                    }else{
+
+                    var index = 0
+                        for(var i = 0; i < palavras.length; i++){
+                            if (palavras[i].toLowerCase() === "sistema." && i+1 < palavras.length) {
+                            aprendendo = false;    
+                            var comando = palavras[i+1].toLowerCase();
+                            switch(comando){
+
+                                case "assistir":case "pesquisar":case "caucular":case "repetir":
+                                    var vetor = eval(comando);
+                                    vetor.push(ultimaescutada);
+                                    responder("Sistema atualizado com sucesso!");
+                                    respondido = true;   
+                                    break;
+                                default:
+                                    responder("Comando de sistema desconhecido!"); 
+                                    respondido = true;   
+                                    }
+                                }else{
+                                    index += palavras[i].length+1;
+                                }
+
+                            }
+                        
+                    if(aprendendo){
+                    perguntas.push(ultimaescutada);
+                    respostas.push(escutado);
+                    responder("ok,entendi");
+                    aprendendo = false;
+                        }
+                    }
+                }
+
+                function responder(text){
+                    resposta.text = text;
+                    ultimaresposta = text;
+                    fala.speak(resposta);
+                    setTimeout(function(){
+                        ouvir.start();
+                    }, text.length*20)
+                    
+                }
+
+            } else {
+                alert('Este navegador não suporta esta funcionalidade ainda!');
+            }
+    </script>
+</body>
+</html>
